@@ -6,5 +6,6 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('test/', views.test, name='test'),
     path('fail/', views.fail, name='fail'),
+    path('complete/', views.complete, name='complete'),
     path('stream/', views.stream_camera, name='stream_camera'),
 ]

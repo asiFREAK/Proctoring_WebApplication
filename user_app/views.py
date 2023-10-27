@@ -29,6 +29,9 @@ def test(request):
 def fail(request):
     return render(request, 'fail.html')
 
+def complete(request):
+    return render(request, 'complete.html')
+
 @gzip.gzip_page
 def stream_camera(request):
     try:

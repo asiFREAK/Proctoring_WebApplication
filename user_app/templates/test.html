@@ -19,9 +19,14 @@
     <h1>Test Activated</h1>
     <h1>Camera Stream</h1>
     <img id="stream" src="{% url 'stream_camera' %}" width="200" height="200">
+    <button type="button" onclick="complete()">Complete</button>
   </div>
 
 <script>
+    function complete() {
+        window.location.href = '/complete';
+    }
+
     function redirectOnTabSwitch() {
         window.location.href = '/fail';
     }

@@ -1,0 +1,14 @@
+*.pyc
+*.pyo
+*.db
+*.xml
+.DS_Store
+.coverage
+.idea
+.env
+db.sqlite3
+/myenv
+**/migrations/*
+/images
+/introductions
+

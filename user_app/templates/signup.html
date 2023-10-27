@@ -1,0 +1,169 @@
+<form id="signup-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="email" name="email" placeholder="Email" required><br><br>
+    <input type="date" name="dob" required><br><br>
+    <input type="text" id="name" name="name" placeholder="Name" required><br><br>
+    <input type="password" name="password" placeholder="Password" required><br><br>
+    <button type="button" onclick="openCamera()">Display Live Camera Data</button><br><br>
+    <canvas id="canvas" width="400" height="300" style="display: none;"></canvas><br><br>
+    <button type="button" id="take-photo-btn" onclick="captureImage()" style="display: none;">Take Photo</button><br><br>
+    <img id="photo" style="display: none;" /><br><br>
+    <button type="button" id="retake-btn" onclick="retakeImage()" style="display: none;">Retake</button><br><br>
+    <button type="button" onclick="startIntroRecording()">Start Record Introduction</button>
+    <button type="button" onclick="stopIntroRecording()">End Recording Introduction</button>
+    <video id="intro-video" controls style="display: none;"></video>
+    <button type="button" onclick="submitForm()">Sign Up</button>
+</form>
+
+<script>
+    const video = document.createElement('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    let mediaStream;
+    let imageFile;
+    let introBlob;
+    let introChunks = [];
+    let introRecorder;
+
+    function startIntroRecording() {
+        navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+            .then(function(stream) {
+                mediaStream = stream;
+                video.srcObject = mediaStream; // Reuse the existing video element
+                video.style.display = 'block'; 
+                video.play();
+
+                // Setup the media recorder
+                introRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
+
+                // Handle data available event
+                introRecorder.ondataavailable = function(event) {
+                    introChunks.push(event.data);
+                };
+
+                // Start recording
+                introRecorder.start();
+            })
+            .catch(function(err) {
+                console.log('An error occurred: ' + err);
+            });
+    }
+
+    function stopIntroRecording() {
+        if (introRecorder && introRecorder.state !== 'inactive') {
+            introRecorder.stop();
+            mediaStream.getTracks().forEach(track => track.stop());
+            introRecorder.onstop = saveIntroRecording;
+        }
+        video.style.display = 'none'; 
+    }
+
+    function saveIntroRecording() {
+        introBlob = new Blob(introChunks, { type: 'video/webm' });
+        const introUrl = URL.createObjectURL(introBlob);
+        const introVideoElement = document.getElementById('intro-video');
+        introVideoElement.src = introUrl;
+        introVideoElement.style.display = 'block';
+    
+        // Update the introduction filename when appending it to the form data
+        
+    }
+    
+
+    function openCamera() {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                video.srcObject = stream;
+                mediaStream = stream;
+                document.body.appendChild(video);
+                video.play();
+
+                video.style.position = 'absolute';
+                video.style.top = '50%';
+                video.style.left = '50%';
+                video.style.transform = 'translate(-50%, -50%)';
+                video.style.width = '450px';
+            })
+            .catch(function(err) {
+                console.log('An error occurred: ' + err);
+            });
+            setTimeout(function() {
+                document.getElementById('take-photo-btn').style.display = 'block';
+            }, 800);
+    }
+
+    function captureImage() {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            imageFile = new File([blob], { type: 'image/jpeg' });
+            const photo = document.getElementById('photo');
+            photo.src = url;
+            photo.style.display = 'block';
+            video.style.display = 'none';
+            canvas.style.display = 'none';
+        }, 'image/jpeg', 1);
+    
+        document.getElementById('retake-btn').style.display = 'block'; // Make the retake button visible
+    }
+    
+
+    function retakeImage() {    
+        video.style.display = 'block'; // Set the video display to block
+        canvas.style.display = 'none'; // Hide the canvas
+        document.getElementById('photo').style.display = 'none'; // Hide the photo
+    
+        // Clear the canvas by drawing a clear rectangle
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    
+        imageFile = null; // Reset the imageFile variable
+        document.getElementById('retake-btn').style.display = 'none';
+    
+        openCamera(); // Reopen the camera
+    }
+    
+
+
+    function submitForm() {
+        const username = document.getElementsByName('name')[0].value;
+        var form = document.getElementById('signup-form');
+        var formData = new FormData(form);
+    
+        // Append the captured image to the form data
+        if (imageFile) {
+            formData.append('image', imageFile, `photo_${username}.jpg`);
+        }
+    
+        if (introBlob) {
+            formData.append('introduction', introBlob, `intro_${username}.webm`);
+        }
+    
+        fetch('/api/signup/', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            console.log(data);
+            // Check for a specific message in the response data
+            if (data.message === 'Registration successful') {
+                window.location.href = '/test';
+            } else {
+                // Handle unsuccessful signup
+                console.error('Signup was not successful.');
+                // Additional error handling or user feedback can be added here
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle fetch errors or other errors here
+        });
+    }
+    
+    
+</script>

@@ -1,0 +1,38 @@
+<h1>Test Activated</h1>
+<style>
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 95vh;
+    }
+
+    #stream {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      border-radius: 50%;
+      border: 2px solid black;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+  
+  <div id="container">
+    <h1>Camera Stream</h1>
+    <img id="stream" src="{% url 'stream_camera' %}" width="200" height="200">
+  </div>
+
+<script>
+    function redirectOnTabSwitch() {
+        window.location.href = '/fail';
+    }
+
+    document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === 'hidden') {
+            redirectOnTabSwitch();
+        }
+    });
+
+    window.onblur = function() {
+        redirectOnTabSwitch();
+    };
+</script>

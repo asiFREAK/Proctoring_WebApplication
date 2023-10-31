@@ -37,6 +37,13 @@
         let pasteCount = 0;
         let seconds = 0;
         let timerInterval;
+        let tabSwitchCount = -1;
+        let hidden = false
+
+        function incrementTabSwitchCount() {
+            tabSwitchCount++;
+            localStorage.setItem('tabSwitchCount', tabSwitchCount);
+        }
 
         document.addEventListener('keydown', (event) => {
             if (event.ctrlKey) {
@@ -67,22 +74,31 @@
             clearInterval(timerInterval);
             localStorage.setItem('pasteCount', pasteCount);
             localStorage.setItem('timer', seconds);
+            localStorage.setItem('tabSwitchCount', tabSwitchCount);
             window.location.href = '/complete';
         }
 
-        function redirectOnTabSwitch() {
-            clearInterval(timerInterval);
-            window.location.href = '/fail';
+        function incrementTabSwitchCount() {
+            tabSwitchCount++;
+            localStorage.setItem('tabSwitchCount', tabSwitchCount);
         }
-
-        document.addEventListener("visibilitychange", function () {
+    
+        function handleVisibilityChange() {
             if (document.visibilityState === 'hidden') {
-                redirectOnTabSwitch();
-            }
-        });
+                hidden = true;
+            } else {
+                if (hidden) {
+                    incrementTabSwitchCount();
+                }
+                hidden = false;
 
+            }
+        }
+    
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+    
         window.onblur = function () {
-            redirectOnTabSwitch();
+            incrementTabSwitchCount();
         };
 
         document.addEventListener('DOMContentLoaded', function () {

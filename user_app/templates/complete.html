@@ -12,6 +12,8 @@
     <p>Attempted test on: {{ sign_up_date }}</p>
     <p>Total Time: <span id="timerDisplay"></span></p>
     <p>Code Paste Count: <span id="pasteCount"></span></p>
+    <p>Number of Tab/Window Switches: <span id="tabSwitchCount"></span></p>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -25,6 +27,8 @@
         });
 
         document.getElementById('pasteCount').innerText = localStorage.getItem('pasteCount') || 0;
+        document.getElementById('tabSwitchCount').innerText = localStorage.getItem('tabSwitchCount') || 0;
+
     </script>
 </body>
 

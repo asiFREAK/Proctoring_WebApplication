@@ -5,6 +5,7 @@ from .models import CustomUser
 from .serializers import CustomUserSerializer
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import render
+from datetime import datetime
 import cv2
 from django.http import StreamingHttpResponse, HttpResponseServerError
 from django.views.decorators import gzip
@@ -30,7 +31,8 @@ def fail(request):
     return render(request, 'fail.html')
 
 def complete(request):
-    return render(request, 'complete.html')
+    sign_up_date = datetime.now().strftime("%Y-%m-%d")
+    return render(request, 'complete.html', {'sign_up_date': sign_up_date})
 
 @gzip.gzip_page
 def stream_camera(request):

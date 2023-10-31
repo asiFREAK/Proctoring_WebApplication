@@ -1,43 +1,75 @@
-<style>
-    #container {
-      position: relative;
-      width: 100vw;
-      height: 95vh;
-    }
+<!DOCTYPE html>
+<html lang="en">
 
-    #stream {
-      position: absolute;
-      left: 10px;
-      bottom: 10px;
-      border-radius: 50%;
-      border: 2px solid black;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    }
-  </style>
-  
-  <div id="container">
-    <h1>Test Activated</h1>
-    <h1>Camera Stream</h1>
-    <img id="stream" src="{% url 'stream_camera' %}" width="200" height="200">
-    <button type="button" onclick="complete()">Complete</button>
-  </div>
-
-<script>
-    function complete() {
-        window.location.href = '/complete';
-    }
-
-    function redirectOnTabSwitch() {
-        window.location.href = '/fail';
-    }
-
-    document.addEventListener("visibilitychange", function() {
-        if (document.visibilityState === 'hidden') {
-            redirectOnTabSwitch();
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 95vh;
         }
-    });
 
-    window.onblur = function() {
-        redirectOnTabSwitch();
-    };
-</script>
+        #stream {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            border-radius: 50%;
+            border: 2px solid black;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <h1>Test Activated</h1>
+        <h1>Camera Stream</h1>
+        <img id="stream" src="{% url 'stream_camera' %}" width="200" height="200">
+        <button type="button" onclick="complete()">Complete</button>
+    </div>
+
+    <script>
+        let seconds = 0;
+        let timerInterval;
+
+        function complete() {
+            clearInterval(timerInterval);
+            localStorage.setItem('timer', seconds);
+            window.location.href = '/complete';
+        }
+
+        function redirectOnTabSwitch() {
+            clearInterval(timerInterval);
+            window.location.href = '/fail';
+        }
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === 'hidden') {
+                redirectOnTabSwitch();
+            }
+        });
+
+        window.onblur = function () {
+            redirectOnTabSwitch();
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const timerElement = document.createElement('p');
+            timerElement.id = 'timer';
+            document.body.appendChild(timerElement);
+
+            timerInterval = setInterval(function () {
+                seconds++;
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const formattedTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+                timerElement.innerText = 'Timer: ' + formattedTime;
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

@@ -32,11 +32,40 @@
     </div>
 
     <script>
+        let ctrlPressed = false;
+        let vPressed = false;
+        let pasteCount = 0;
         let seconds = 0;
         let timerInterval;
 
+        document.addEventListener('keydown', (event) => {
+            if (event.ctrlKey) {
+                ctrlPressed = true;
+            }
+
+            if (event.key === 'v' || event.key === 'V') {
+                vPressed = true;
+            }
+
+            if (ctrlPressed && vPressed) {
+                pasteCount++;
+                console.log('Ctrl + V pressed! Count:', pasteCount);
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.key === 'Control') {
+                ctrlPressed = false;
+            }
+
+            if (event.key === 'v' || event.key === 'V') {
+                vPressed = false;
+            }
+        });
+
         function complete() {
             clearInterval(timerInterval);
+            localStorage.setItem('pasteCount', pasteCount);
             localStorage.setItem('timer', seconds);
             window.location.href = '/complete';
         }

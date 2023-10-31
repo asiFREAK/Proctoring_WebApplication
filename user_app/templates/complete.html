@@ -11,6 +11,7 @@
     <h1>Test Completed</h1>
     <p>Attempted test on: {{ sign_up_date }}</p>
     <p>Total Time: <span id="timerDisplay"></span></p>
+    <p>Code Paste Count: <span id="pasteCount"></span></p>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -22,6 +23,8 @@
             const formattedTime = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
             timerDisplay.textContent = formattedTime;
         });
+
+        document.getElementById('pasteCount').innerText = localStorage.getItem('pasteCount') || 0;
     </script>
 </body>
 
